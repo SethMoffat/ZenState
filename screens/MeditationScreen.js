@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
+import { Asset } from 'expo-asset';
+
 
 const meditationData = [
   { id: '1', title: 'Guided Meditation for Anxiety', audio: 'https://example.com/audio1.mp3' },
   { id: '2', title: 'Mindfulness Meditation', audio: 'https://example.com/audio2.mp3' },
   { id: '3', title: 'Body Scan Meditation', audio: 'https://example.com/audio3.mp3' },
   { id: '4', title: 'Loving-Kindness Meditation', audio: 'https://example.com/audio4.mp3' },
+  {
+    id: '5',
+    title: 'Crystal Frequency Meditation',
+    audio: Asset.fromModule(require('../MeditationAudio/Crystal_Frequency_Audio.mp3')).uri,
+  }
 ];
+
 
 function MeditationItem({ title, onPress }) {
   return (
