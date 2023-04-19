@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Audio } from 'expo-av';
+import { useNavigation } from '@react-navigation/native';
 import { Asset } from 'expo-asset';
-
 
 const meditationData = [
   { id: '1', title: 'Guided Meditation for Anxiety', audio: 'https://example.com/audio1.mp3' },
@@ -13,9 +12,9 @@ const meditationData = [
     id: '5',
     title: 'Crystal Frequency Meditation',
     audio: Asset.fromModule(require('../MeditationAudio/Crystal_Frequency_Audio.mp3')).uri,
-  }
+    voice: 'Jessica',
+  },
 ];
-
 
 function MeditationItem({ title, onPress }) {
   return (
@@ -26,18 +25,11 @@ function MeditationItem({ title, onPress }) {
 }
 
 export default function MeditationScreen() {
-  const [sound, setSound] = useState(null);
+  const navigation = useNavigation();
 
-  async function playAudio(audioUrl) {
-    if (sound) {
-      await sound.unloadAsync();
-    }
-
-    const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioUrl });
-    setSound(newSound);
-
-    await newSound.playAsync();
-  }
+  const playAudio = (title, audio) => {
+    navigation.navigate('ActiveMeditation', { title, audio });
+  };
 
   return (
     <View style={styles.container}>
@@ -45,7 +37,7 @@ export default function MeditationScreen() {
       <FlatList
         data={meditationData}
         renderItem={({ item }) => (
-          <MeditationItem title={item.title} onPress={() => playAudio(item.audio)} />
+          <MeditationItem title={item.title} onPress={() => playAudio(item.title, item.audio)} />
         )}
         keyExtractor={item => item.id}
       />

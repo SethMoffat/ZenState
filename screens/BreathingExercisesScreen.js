@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Audio } from 'expo-av';
+import { Asset } from 'expo-asset';
+
 
 const breathingData = [
-  { id: '1', title: '4-7-8 Breathing Technique', duration: 60 },
+  {
+    id: '1',
+    title: '4-7-8 Breathing Exercise',
+    audio: Asset.fromModule(require('../BreathingAudio/4-7-8_Calm_Breathing_Exercise.mp3')).uri,
+    voice:'Matthew Hall'
+  },
   { id: '2', title: 'Box Breathing', duration: 60 },
   { id: '3', title: 'Deep Breathing', duration: 60 },
 ];
 
-function BreathingItem({ title, onPress }) {
+function BreathingItem({ title, duration, audio, onPress }) {
   return (
-    <TouchableOpacity style={styles.item} onPress={onPress}>
+    <TouchableOpacity style={styles.item} onPress={() => onPress(duration, audio)}>
       <Text style={styles.itemTitle}>{title}</Text>
     </TouchableOpacity>
   );
@@ -40,29 +48,56 @@ export default function BreathingExercisesScreen() {
     return () => clearInterval(interval);
   }, [timer]);
 
-  function startTimer(duration) {
+  async function startTimer(duration, audio) {
     setTimeRemaining(duration);
-    (setTimer) => setTimeout(() => setTimer(null), duration * 1000);
+    setTimer(duration);
+
+    const soundObject = new Audio.Sound();
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+        playThroughEarpieceAndroid: false,
+        staysActiveInBackground: true,
+      });
+      await soundObject.loadAsync({ uri: audio });
+      await soundObject.playAsync();
+    } catch (error) {
+      console.warn(error);
+    }
   }
-  
+
+  function formatTime(time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  }
+
   return (
-  <View style={styles.container}>
-  <Text style={styles.title}>Breathing Exercises</Text>
-  <FlatList
-  data={breathingData}
-  renderItem={({ item }) => (
-  <BreathingItem title={item.title} onPress={() => startTimer(item.duration)} />
-  )}
-  keyExtractor={item => item.id}
-  />
-  {timer && (
-  <View style={styles.timerContainer}>
-  <Text style={styles.timerText}>{timeRemaining} seconds remaining</Text>
-  </View>
-  )}
-  </View>
-  );
-  }
+    <View style={styles.container}>
+      <Text style={styles.title}>Breathing Exercises</Text>
+      <FlatList
+        data={breathingData}
+        renderItem={({ item }) => (
+          <BreathingItem
+            title={item.title}
+            duration={item.duration}
+            audio={item.audio}
+            onPress={startTimer}
+          />
+        )}
+        keyExtractor={item => item.id}
+      />
+      {timer && (
+        <View style={styles.timerContainer}>
+          <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
+        </View>
+      )}
+    </View>
+  );}
   
   const styles = StyleSheet.create({
   container: {

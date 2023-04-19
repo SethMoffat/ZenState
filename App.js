@@ -8,6 +8,7 @@ import MeditationScreen from './screens/MeditationScreen';
 import BreathingExercisesScreen from './screens/BreathingExercisesScreen';
 import ProgressTrackerScreen from './screens/ProgressTrackerScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import ActiveMeditation from './screens/ActiveMeditation';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,6 +30,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="ActiveMeditation" component={ActiveMeditation} />
       </Stack.Navigator>
     </NavigationContainer>
   );
